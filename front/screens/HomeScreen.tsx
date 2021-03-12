@@ -12,21 +12,30 @@ export default function HomeScreen() {
   const [tasks, setTasks] = React.useState<any[]>([]);
 
   const fetchTasks = async () => {
-    fetch(`http://localhost:5000/api/users/${userID}/tasks`, {
-      method: "GET",
-      headers: new Headers({
-        Accept: "application/json",
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        setTasks(json.data.object);
+    if (userID != 0 && token != "") {
+      fetch(`http://localhost:5000/api/users/${userID}/tasks`, {
+        method: "GET",
+        headers: new Headers({
+          Accept: "application/json",
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+        }),
       })
-      .catch((error) => {
-        console.error(error);
-      });
+        .then((response) => response.json())
+        .then((json) => {
+          console.log(json.data);
+          if (json.data.object) {
+            setTasks(json.data.object);
+          } else {
+            setTasks([]);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      console.log("missing credentials");
+    }
   };
 
   const isComplete = async (task: number) => {
@@ -117,7 +126,7 @@ export default function HomeScreen() {
 
   React.useEffect(() => {
     fetchTasks();
-  }, [userID, token]);
+  }, [token]);
 
   return (
     <View
@@ -172,9 +181,19 @@ export default function HomeScreen() {
         </View>
       ))}
 
-      <View style={{ display: "flex", flexDirection: "row" }}>
+      <View
+        style={[
+          tailwind("bg-transparent mt-10"),
+          { display: "flex", flexDirection: "row" },
+        ]}
+      >
         <TextInput
-          style={[tailwind("italic p-2 border-r border-black"), { height: 40 }]}
+          style={[
+            tailwind(
+              "italic p-2 border-r border-black bg-gray-800 rounded-md text-white"
+            ),
+            { height: 40 },
+          ]}
           onChangeText={(text) => setNewTask(text)}
           placeholder="Add new task..."
           value={newTask}
@@ -182,7 +201,7 @@ export default function HomeScreen() {
         <TouchableOpacity
           onPress={() => addTask()}
           style={tailwind(
-            "flex items-center justify-center w-10 h-10 p-1.5 border border-transparent rounded-full shadow-sm text-white bg-indigo-600"
+            "flex items-center justify-center w-10 ml-2 h-10 p-1.5 border border-transparent rounded-full shadow-sm text-white bg-indigo-600"
           )}
         >
           <Text style={tailwind("font-bold text-lg -mt-1")}>+</Text>

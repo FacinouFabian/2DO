@@ -2,23 +2,40 @@ import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as React from "react";
+import AsyncStorage from "@react-native-community/async-storage";
 
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
-import { BottomTabParamList, TabOneParamList, TabTwoParamList } from "../types";
+import AuthScreen from "../screens/AuthScreen";
+import {
+  AuthParamList,
+  BottomTabParamList,
+  TabOneParamList,
+  TabTwoParamList,
+} from "../types";
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
 export default function BottomTabNavigator() {
   const colorScheme = useColorScheme();
 
+  const isConnected = async () => {
+    let data = await AsyncStorage.getItem("data");
+    if (!data) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   return (
     <BottomTab.Navigator
-      initialRouteName="Home"
+      initialRouteName={isConnected() ? "Home" : "Auth"}
       tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}
     >
+      <BottomTab.Screen name="Auth" component={AuthNavigator} />
       <BottomTab.Screen
         name="Home"
         component={HomeNavigator}
@@ -77,5 +94,19 @@ function ProfileNavigator() {
         options={{ headerTitle: "Profile" }}
       />
     </ProfileStack.Navigator>
+  );
+}
+
+const AuthStack = createStackNavigator<AuthParamList>();
+
+function AuthNavigator() {
+  return (
+    <AuthStack.Navigator>
+      <AuthStack.Screen
+        name="AuthScreen"
+        component={AuthScreen}
+        options={{ headerTitle: "Authenticate" }}
+      />
+    </AuthStack.Navigator>
   );
 }

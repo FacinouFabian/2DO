@@ -1,35 +1,22 @@
 import * as React from "react";
 import { TextInput, TouchableOpacity } from "react-native";
+import AsyncStorage from "@react-native-community/async-storage";
 import tailwind from "tailwind-rn";
 
 import { Text, View } from "../components/Themed";
 
 export default function HomeScreen() {
+  const [userID, setUserID] = React.useState<number>(0);
+  const [token, setToken] = React.useState<string>("");
   const [newTask, setNewTask] = React.useState<string>("");
   const [tasks, setTasks] = React.useState<any[]>([]);
 
-  const arr = [
-    { key: "Devin" },
-    { key: "Dan" },
-    { key: "Dominic" },
-    { key: "Jackson" },
-    { key: "James" },
-    { key: "Joel" },
-    { key: "John" },
-    { key: "Jillian" },
-    { key: "Jimmy" },
-    { key: "Julie" },
-  ];
-
-  const fetchTasks = async (user: number) => {
-    /* const { token } = user; */
-    fetch(`http://localhost:5000/api/users/${user}/tasks`, {
+  const fetchTasks = async () => {
+    fetch(`http://localhost:5000/api/users/${userID}/tasks`, {
       method: "GET",
       headers: new Headers({
         Accept: "application/json",
-        Authorization:
-          "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImZpcnN0bmFtZSI6IkdvbGRlbiIsImlhdCI6MTYxNTU0NTExN30.NKUhifbjJVgGhIVFeYiCdARO70veo7_K8UyokPMizIs",
+        Authorization: "Bearer " + token,
         "Content-Type": "application/json",
       }),
     })
@@ -64,14 +51,11 @@ export default function HomeScreen() {
   };
 
   const addTask = async () => {
-    /* const { token } = user; */
     fetch(`http://localhost:5000/api/tasks`, {
       method: "POST",
       headers: new Headers({
         Accept: "application/json",
-        Authorization:
-          "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImZpcnN0bmFtZSI6IkdvbGRlbiIsImlhdCI6MTYxNTU0NTExN30.NKUhifbjJVgGhIVFeYiCdARO70veo7_K8UyokPMizIs",
+        Authorization: "Bearer " + token,
         "Content-Type": "application/json",
       }),
       body: JSON.stringify({
@@ -81,7 +65,7 @@ export default function HomeScreen() {
     })
       .then((response) => response.json())
       .then(() => {
-        fetchTasks(1);
+        fetchTasks();
       })
       .catch((error) => {
         console.error(error);
@@ -109,9 +93,25 @@ export default function HomeScreen() {
       });
   };
 
+  const getDataStorage = async () => {
+    let data = await AsyncStorage.getItem("data");
+    const tokenString = await AsyncStorage.getItem("token");
+    if (!data || !tokenString) {
+      console.log("data or token is missing");
+    } else {
+      const dataObj = JSON.parse(data);
+      setUserID(dataObj.id);
+      setToken(JSON.parse(tokenString));
+    }
+  };
+
   React.useEffect(() => {
-    fetchTasks(1);
+    getDataStorage();
   }, []);
+
+  React.useEffect(() => {
+    fetchTasks();
+  }, [userID, token]);
 
   return (
     <View

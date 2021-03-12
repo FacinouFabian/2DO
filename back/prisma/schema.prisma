@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgres://postgres:root@localhost:5432/mydb?schema=public"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int     @default(autoincrement()) @id
+  email     String  @unique
+  encryptedPassword String
+  firstname	String
+  lastname	String
+  birthdate	DateTime
+  gender    String
+  createdAt	DateTime
+  updatedAt DateTime
+}
+
+model Task {
+  id      Int     @default(autoincrement()) @id
+  content	String
+  isComplete Boolean @default(false)
+  userId	Int
+  createdAt	DateTime
+  updatedAt	DateTime
+}

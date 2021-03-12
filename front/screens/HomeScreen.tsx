@@ -30,67 +30,73 @@ export default function HomeScreen() {
   };
 
   const isComplete = async (task: number) => {
-    /* const { token } = user; */
-    fetch(`http://localhost:5000/api/tasks/${task}/complete`, {
-      method: "GET",
-      headers: new Headers({
-        Accept: "application/json",
-        Authorization:
-          "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImZpcnN0bmFtZSI6IkdvbGRlbiIsImlhdCI6MTYxNTU0NTExN30.NKUhifbjJVgGhIVFeYiCdARO70veo7_K8UyokPMizIs",
-        "Content-Type": "application/json",
-      }),
-    })
-      .then((response) => response.json())
-      .then(() => {
-        fetchTasks(1);
+    if (userID != 0 && token != "") {
+      fetch(`http://localhost:5000/api/tasks/${task}/complete`, {
+        method: "GET",
+        headers: new Headers({
+          Accept: "application/json",
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+        }),
       })
-      .catch((error) => {
-        console.error(error);
-      });
+        .then((response) => response.json())
+        .then(() => {
+          fetchTasks();
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      console.log("missing credentials");
+    }
   };
 
   const addTask = async () => {
-    fetch(`http://localhost:5000/api/tasks`, {
-      method: "POST",
-      headers: new Headers({
-        Accept: "application/json",
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-      }),
-      body: JSON.stringify({
-        content: newTask,
-        userID: 1,
-      }),
-    })
-      .then((response) => response.json())
-      .then(() => {
-        fetchTasks();
+    if (userID != 0 && token != "") {
+      fetch(`http://localhost:5000/api/tasks`, {
+        method: "POST",
+        headers: new Headers({
+          Accept: "application/json",
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+        }),
+        body: JSON.stringify({
+          content: newTask,
+          userID: userID,
+        }),
       })
-      .catch((error) => {
-        console.error(error);
-      });
+        .then((response) => response.json())
+        .then(() => {
+          fetchTasks();
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      console.log("missing credentials");
+    }
   };
 
   const deleteTask = async (task: number) => {
-    /* const { token } = user; */
-    fetch(`http://localhost:5000/api/tasks/${task}`, {
-      method: "DELETE",
-      headers: new Headers({
-        Accept: "application/json",
-        Authorization:
-          "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsImZpcnN0bmFtZSI6IkdvbGRlbiIsImlhdCI6MTYxNTU0NTExN30.NKUhifbjJVgGhIVFeYiCdARO70veo7_K8UyokPMizIs",
-        "Content-Type": "application/json",
-      }),
-    })
-      .then((response) => response.json())
-      .then(() => {
-        fetchTasks(1);
+    if (userID != 0 && token != "") {
+      fetch(`http://localhost:5000/api/tasks/${task}`, {
+        method: "DELETE",
+        headers: new Headers({
+          Accept: "application/json",
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+        }),
       })
-      .catch((error) => {
-        console.error(error);
-      });
+        .then((response) => response.json())
+        .then(() => {
+          fetchTasks();
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      console.log("missing credentials");
+    }
   };
 
   const getDataStorage = async () => {
